@@ -1,0 +1,46 @@
+{{#if userInfo}}
+				<div class="userInfo" style="display: block;">
+					{{#with userInfo}}
+					<div class="userHead">
+						<img src="./image/avatar/large/{{userPhoto}}">
+						<div class="nicknameFirst">j</div>
+					</div>
+					<div class="nickname">
+						<span>{{username}}</span>
+						 <a target="_self" href="/modifyinfo.html"><div class="editorInfo"></div></a>
+						 <a href="./j_spring_security_logout">退出</a>
+					</div>
+                    {{/with}}
+					<div class="info_list" id="info_list">
+						{{#menus}}
+						<li class="{{className}}">
+						<div class="icon"></div> <a target="_self" 
+						href="{{href}}"><span>{{text}}</span><span class="gray"
+						style="display: none;">(0)</span>
+						</a>
+						{{#if extend}}
+							<a target="_self" href="/recharge.html"><div class="pay">充值</div></a>
+								<div class="rechargeGuide" style="display: none;">
+								<div ne-click="closeRechargeGuide()" class="rechargeGuide_close"></div>
+								剩余红豆不多了。为避免错过竞彩赛事分析，请及时充值！
+							</div>
+						{{/if}}
+						</li>
+						{{/menus}}
+					</div>
+				</div>
+				 {{else}}
+				<!--未登录时状态-->
+				<div class="hongcaiInfo" style="display: block;">
+		            <div class="info_focus">
+		                <div class="info_focus-body">
+		                    <div class="info_focus-list">
+		                        <div class="info_focus_item">
+		                            <img alt="" src="https://static.ws.126.net/f2e/products/relottery/platform/images/index_side_unlogin.jpg">
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+                  <div class="info_login"><span ne-click="login()">登录</span>|<span ne-click="register()">注册</span></div>
+             </div>
+             {{/if}}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" >
+        <property name="dataSource" ref ="dataSource" />       
+        <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
+        <property name="configLocation" value="classpath:quartz.properties"/>	
+        <!-- <property name="jobFactory" ref ="" /> 可以自定义 jobFactory myAdaptableJobFactory-->
+        		
+    </bean>
+    
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean" >
+        <property name="jobClass">
+            <!-- <value>com.sundoctor.example.service.MyQuartzJobBean</value> -->
+            <value>com.schedule.job.CollectDataJobBean</value>
+        </property>
+       <property name="durability" value="true" />	
+    </bean>
+    
+    <!-- 生成按时获取比分数据的job detail -->
+    <bean id="jobDetail2" class="org.springframework.scheduling.quartz.JobDetailFactoryBean" >
+        <property name="jobClass">
+            <value>com.schedule.job.DayJobBean</value>
+        </property>
+       <property name="durability" value="true" />	
+    </bean>
+    
+    <!-- 获取比赛结果数据的job detail -->
+    <bean id="jobDetail3" class="org.springframework.scheduling.quartz.JobDetailFactoryBean" >
+        <property name="jobClass">
+            <value>com.schedule.job.GameResultJobBean</value>
+        </property>
+       <property name="durability" value="true" />	
+    </bean>
+	 
+</beans>

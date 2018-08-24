@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <global-method-security pre-post-annotations="enabled" />
+
+	<http pattern="/image/**" security="none"/>
+    <http pattern="/static/**" security="none"/>
+    <http pattern="/style/**" security="none"/>
+    <http pattern="/video/**" security="none"/>
+    <http pattern="/loggedout.jsp" security="none"/>
+    <http pattern="/jsp/login.jsp" security="none"/>
+    <http pattern="/jsp/table.json" security="none"/>
+    <!-- <beans:bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+    	
+		<filter-chain-map request-matcher="ant">
+			<filter-chain pattern="/**" request-matcher-ref="antMatcher" filters="usernamePasswordAuthenticationFilter" />
+		</filter-chain-map>
+	</beans:bean>
+	<beans:bean id="usernamePasswordAuthenticationFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+">
+    <beans:property name="authenticationManager" ref="authenticationManager"></beans:property>
+</beans:bean>
+	<beans:bean id="antMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+	 <beans:constructor-arg>
+	   <beans:value>/**</beans:value>
+	 </beans:constructor-arg>
+	</beans:bean> -->
+     <http use-expressions="true" >
+     	<intercept-url pattern="/user/register**" access="permitAll" />
+     	<intercept-url pattern="/user/login**" access="permitAll" />
+        <intercept-url pattern="/manager/**" access="hasRole('teller')"/>
+        <intercept-url pattern="/system/**" access="hasRole('teller')"/>
+        <intercept-url pattern="/jsp/**" access="isAuthenticated()" />
+        <intercept-url pattern="/user/**" access="isAuthenticated()" />
+        <intercept-url pattern="/sport/**" access="isAuthenticated()" />
+          <!--   Allow all other requests. In a real application you should
+             adopt a whitelisting approach where access is not allowed by default
+          -->
+        <intercept-url pattern="/*" access="permitAll" />
+        <intercept-url pattern="/index.jsp" access="permitAll" />
+        <intercept-url pattern="/home/**" access="permitAll" />
+        <form-login login-page="/jsp/login.jsp"/>
+        <!-- loggedout.jsp -->
+        <logout success-handler-ref="myLogoutHandler" delete-cookies="JSESSIONID" invalidate-session="true"/>
+        <access-denied-handler error-page="/error.jsp"/>
+        <remember-me />
+<!--
+    Uncomment to enable X509 client authentication support
+        <x509 />
+-->
+        <!-- Uncomment to limit the number of sessions a user can have timeout.jsp-->
+        <session-management invalid-session-url="/">
+            <concurrency-control max-sessions="1" error-if-maximum-exceeded="false"/>
+        </session-management>
+
+    </http>
+    
+    <beans:bean id="mySuccessHandler" class="com.common.handler.MyUrlAuthenticationSuccessHandler"/>
+    <beans:bean id="myLogoutHandler" class="com.common.handler.MyUrlLogoutSuccessHandler"/>
+    
+    <!-- <beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+		<beans:property name="sessionRegistry" ref="sessionRegistry" />
+		<beans:property name="expiredUrl" value="/session-expired.htm" />
+	</beans:bean>
+    <beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" /> -->
+
+    <!--
+    Usernames/Passwords are
+        rod/koala
+        dianne/emu
+        scott/wombat
+        peter/opal
+    -->
+    <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+	<beans:bean id="userDetailsService" class="com.common.security.userdetails.MyJdbcDaoImpl">  
+        <beans:property name="dataSource" ref="dataSource" />  
+        <beans:property name="usersByUsernameQuery"   
+            value="SELECT username,password,enabled,userPhoto,currency  FROM users WHERE username=?" />  
+        <beans:property name="authoritiesByUsernameQuery"   
+            value="select username,authority 
+            from authorities 
+            where username = ?" />  
+    </beans:bean>
+    <authentication-manager>
+        <authentication-provider user-service-ref="userDetailsService">
+        <!-- <jdbc-user-service data-source-ref="dataSource" role-prefix="" /> -->
+            <password-encoder ref="encoder"/>
+            <!-- <user-service>
+                <user name="rod" password="$2a$10$75pBjapg4Nl8Pzd.3JRnUe7PDJmk9qBGwNEJDAlA3V.dEJxcDKn5O" authorities="supervisor,user,teller" />
+                <user name="dianne" password="$2a$04$bCMEyxrdF/7sgfUiUJ6Ose2vh9DAMaVBldS1Bw2fhi1jgutZrr9zm" authorities="user,teller" />
+                <user name="scott" password="$2a$06$eChwvzAu3TSexnC3ynw4LOSw1qiEbtNItNeYv5uI40w1i3paoSfLu" authorities="user" />
+                <user name="peter" password="$2a$04$8.H8bCMROLF4CIgd7IpeQ.tcBXLP5w8iplO0n.kCIkISwrIgX28Ii" authorities="user" />
+            </user-service> -->
+        </authentication-provider>
+    </authentication-manager>
+
+</beans:beans>

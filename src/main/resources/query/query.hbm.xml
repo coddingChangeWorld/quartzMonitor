@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<sql-query name="test">
+		<!-- <return alias="customer" class="com.sundoctor.example.model.Customert"></return> -->
+		<return-scalar column="age" type="integer"/>
+		<return-scalar column="email" type="string"/>
+		<return-scalar column="name" type="string"/>
+		<![CDATA[
+		select t.age,t.name,t.email from customer t where 1=1 { and t.id = :id }
+		
+		]]>
+	</sql-query>
+	<sql-query name="queryTeamList">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="abbr" type="string"/>
+		<return-scalar column="city" type="string"/>
+		<return-scalar column="cityEn" type="string"/>
+		<return-scalar column="code" type="string"/>
+		<return-scalar column="conference" type="string"/>
+		<return-scalar column="displayConference" type="string"/>
+		<return-scalar column="displayAbbr" type="string"/>
+		<return-scalar column="nameEn" type="string"/>
+		<return-scalar column="division" type="string"/>
+		<![CDATA[
+			select 
+				id,
+				abbr,
+				city,
+				cityEn,
+				code,
+				conference,
+				displayConference,
+				displayAbbr,
+				nameEn,
+				division
+			from app_team
+		]]>
+	</sql-query>
+	<sql-query name="queryGameList">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="arenaName" type="string"/>
+		<return-scalar column="awayName" type="string"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="awayTeamId" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="gameTime" type="string"/>
+		<return-scalar column="homeName" type="string"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="homeTeamId" type="string"/>
+		<return-scalar column="status" type="string"/>
+		<return-scalar column="updateTime" type="string"/>
+		<![CDATA[
+			select 
+				id,
+				arenaName,
+				awayName,
+				awayScore,
+				awayTeamId,
+				gameId,
+				gameTime,
+				homeName,
+				homeScore,
+				homeTeamId,
+				status,
+				updateTime
+			from app_profile where 1=1
+			{ and id=:id }
+			{ and gameTime>=:startTime }
+ 			{ and gameTime<:endTime } { and id in ( :ids ) } order by gameTime desc
+		]]>
+	</sql-query>
+	<sql-query name="queryGameListDto">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="arenaName" type="string"/>
+		<return-scalar column="awayName" type="string"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="awayTeamId" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="gameTime" type="string"/>
+		<return-scalar column="homeName" type="string"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="homeTeamId" type="string"/>
+		<return-scalar column="status" type="string"/>
+		<return-scalar column="updateTime" type="string"/>
+		<return-scalar column="homeAbbr" type="string"/>
+		<return-scalar column="awayAbbr" type="string"/>
+		<![CDATA[
+			select 
+				apf.id,
+				apf.arenaName,
+				apf.awayName,
+				apf.awayScore,
+				apf.awayTeamId,
+				apf.gameId,
+				apf.gameTime,
+				apf.homeName,
+				apf.homeScore,
+				apf.homeTeamId,
+				apf.status,
+				apf.updateTime,
+				(select at.abbr from app_team at where at.id=apf.awayTeamId) as awayAbbr,
+				(select at.abbr from app_team at where at.id=apf.homeTeamId) as homeAbbr 
+			from app_profile apf where 1=1 { and apf.id in ( :ids ) } 
+		]]>
+	</sql-query>
+	<sql-query name="queryProfile">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="arenaName" type="string"/>
+		<return-scalar column="awayTeamId" type="string"/>
+		<return-scalar column="awayName" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="homeTeamId" type="string"/>
+		<return-scalar column="homeName" type="string"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="gameTime" type="timestamp"/>
+		<return-scalar column="updateTime" type="timestamp"/>
+		<![CDATA[
+			select * from app_profile where 1=1 and status=2 { and date_format(gameTime,'%Y-%m-%d')= :time }
+		]]>
+	</sql-query>
+	<sql-query name="queryProfiledto">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="homeAbbr" type="string"/>
+		<return-scalar column="awayAbbr" type="string"/>
+		<return-scalar column="arenaName" type="string"/>
+		<return-scalar column="awayTeamId" type="string"/>
+		<return-scalar column="awayName" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="homeTeamId" type="string"/>
+		<return-scalar column="homeName" type="string"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="gameTime" type="timestamp"/>
+		<return-scalar column="updateTime" type="timestamp"/>
+		<![CDATA[
+			select apf.*,(select at.abbr from app_team at where at.id=apf.awayTeamId) as awayAbbr,
+				(select at.abbr from app_team at where at.id=apf.homeTeamId) as homeAbbr 
+               from app_profile apf where 1=1 { and apf.id= :id }
+		]]>
+	</sql-query>
+	<sql-query name="queryTeamAll">
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="abbr" type="string"/>
+		<return-scalar column="city" type="string"/>
+		<return-scalar column="cityEn" type="string"/>
+		<return-scalar column="code" type="string"/>
+		<return-scalar column="conference" type="string"/>
+		<return-scalar column="displayAbbr" type="string"/>
+		<return-scalar column="displayConference" type="string"/>
+		<return-scalar column="division" type="string"/>
+		<return-scalar column="isAllStarTeam" type="string"/>
+		<return-scalar column="isLeagueTeam" type="string"/>
+		<return-scalar column="name" type="string"/>
+		<return-scalar column="nameEn" type="string"/>
+		<![CDATA[
+			select * from app_team
+		]]>
+	</sql-query>
+	<sql-query name="queryCountBetOrder">
+		<return-scalar column="profileId" type="string"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="profileStatus" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="publishUserId" type="string"/>
+		<return-scalar column="matchRuleId" type="string"/>
+		<return-scalar column="strategy" type="string"/>
+		<return-scalar column="json" type="string"/>
+		<return-scalar column="betOrderId" type="string"/>
+		<return-scalar column="bet" type="string"/>
+		<return-scalar column="num" type="double"/>
+		<return-scalar column="amount" type="double"/>
+		<return-scalar column="userId" type="string"/>
+		<![CDATA[
+			select apf.id as profileId,
+			apf.homeScore,
+			apf.awayScore,
+			apf.`status` as profileStatus,
+			apf.gameId,
+			amr.publish_user_id as publishUserId,
+			amr.id as matchRuleId,
+			amr.strategy,
+			amr.json,
+			abo.id betOrderId,
+			abo.bet,
+			abo.num,
+			abo.amount,
+			abo.user_id userId
+			 from app_matchrule amr LEFT JOIN app_bet_order abo on amr.id=abo.matchrule_id
+			LEFT JOIN app_profile apf on amr.match_id=apf.id
+			where amr.`status`=1 and abo.`status`=1 { and amr.match_id=:matchId }
+		]]>
+	</sql-query>
+	<sql-query name="queryGameItemList" >
+		<return-scalar column="id" type="string"/>
+		<return-scalar column="arenaName" type="string"/>
+		<return-scalar column="awayTeamId" type="string"/>
+		<return-scalar column="awayName" type="string"/>
+		<return-scalar column="gameId" type="string"/>
+		<return-scalar column="homeTeamId" type="string"/>
+		<return-scalar column="homeName" type="string"/>
+		<return-scalar column="awayScore" type="integer"/>
+		<return-scalar column="homeScore" type="integer"/>
+		<return-scalar column="gameTime" type="date"/>
+		<return-scalar column="updateTime" type="date"/>
+		<return-scalar column="status" type="string"/>
+		<return-scalar column="awayAbbr" type="string"/>
+		<return-scalar column="status" type="string"/>
+		<return-scalar column="homeAbbr" type="integer"/>
+		<return-scalar column="ruleCount" type="integer"/>
+		<![CDATA[
+			select 
+				apf.*,(select count(amr.id) as ruleCount from app_matchrule amr where amr.match_id=apf.id and amr.status='1') as ruleCount,
+				(select at.abbr from app_team at where at.id=apf.awayTeamId) as awayAbbr,
+				(select at.abbr from app_team at where at.id=apf.homeTeamId) as homeAbbr
+ 				from app_profile apf where 1=1 { and date_format(apf.gameTime,'%Y-%m-%d')= :time }
+		]]>
+	</sql-query>
+	
+	<sql-query name="updateUserCurrencyById">
+		<![CDATA[
+			update from users set currency=currency + { ( :amount ) }  where { id = :userId }
+		]]>
+	</sql-query>
+	<sql-query name="updateProfileResultForScore">
+		<![CDATA[
+			update app_profile set homeScore= { :homeScore },awayScore= { :awayScore },status= { :status }  where { gameId = :gameId }
+		]]>
+	</sql-query>
+	<query name="testHql">
+		<![CDATA[
+			from Customer
+		
+		]]>
+	</query>
+</hibernate-mapping>
+
+  
+
