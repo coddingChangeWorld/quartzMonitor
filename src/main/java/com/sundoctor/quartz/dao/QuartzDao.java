@@ -41,7 +41,24 @@ public class QuartzDao {
 	}
 	public List<Map<String, Object>> getQrtzTriggers() {
 		List<Map<String, Object>> results = getJdbcTemplate().queryForList(
-				"select * from QRTZ_TRIGGERS order by start_time");
+				"select t1.CRON_EXPRESSION"
+				+",t2.SCHED_NAME"
+				+",t2.TRIGGER_NAME"
+				+",t2.TRIGGER_GROUP"
+				+",t2.JOB_NAME"
+				+",t2.JOB_GROUP"
+				+",t2.DESCRIPTION"
+				+",t2.NEXT_FIRE_TIME"
+				+",t2.PREV_FIRE_TIME"
+				+",t2.PRIORITY"
+				+",t2.TRIGGER_STATE"
+				+",t2.TRIGGER_TYPE"
+				+",t2.START_TIME"
+				+",t2.END_TIME"
+				+",t2.CALENDAR_NAME"
+				+",t2.MISFIRE_INSTR"
+				+",t2.JOB_DATA"
+				+ " from qrtz_cron_triggers t1 LEFT JOIN QRTZ_TRIGGERS t2 on t1.TRIGGER_NAME=t2.TRIGGER_NAME and t1.TRIGGER_GROUP=t2.TRIGGER_GROUP ORDER BY t2.start_time DESC");
 		long val = 0;
 		String temp = null;
 		for (Map<String, Object> map : results) {
@@ -51,6 +68,8 @@ public class QuartzDao {
 			} else {
 				map.put("display_name", temp);
 			}
+			
+			map.put("cron_expression", MapUtils.getString(map, "cron_expression"));
 
 			val = MapUtils.getLongValue(map, "next_fire_time");
 			if (val > 0) {

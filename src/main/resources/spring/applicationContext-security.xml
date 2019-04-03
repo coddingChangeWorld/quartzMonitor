@@ -10,10 +10,12 @@
 	<http pattern="/image/**" security="none"/>
     <http pattern="/static/**" security="none"/>
     <http pattern="/style/**" security="none"/>
+    <http pattern="/components/**" security="none"/>
     <http pattern="/video/**" security="none"/>
     <http pattern="/loggedout.jsp" security="none"/>
     <http pattern="/jsp/login.jsp" security="none"/>
     <http pattern="/jsp/table.json" security="none"/>
+    <http pattern="/jsp/" security="none"/>
     <!-- <beans:bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
     	
 		<filter-chain-map request-matcher="ant">

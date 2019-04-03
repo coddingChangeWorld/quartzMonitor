@@ -131,7 +131,7 @@ public class WeekCollectService extends AbstractCollectService {
 		this.teamItems = teamItems;
 	}*/
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String pathUrl = "http://china.nba.com/static/data/season/schedule_7.json";
 		//String pathUrl = "http://china.nba.com/static/data/scores/daily_2018-05-05.json";
 		WeekCollectService service = new WeekCollectService(pathUrl);
@@ -141,7 +141,7 @@ public class WeekCollectService extends AbstractCollectService {
 		}else{
 			System.out.println("数量"+tempProList.keySet().size());
 		}
-	}
+	}*/
 
 
 }

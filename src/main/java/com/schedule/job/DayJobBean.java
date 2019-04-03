@@ -35,9 +35,13 @@ public class DayJobBean extends QuartzJobBean {
 	private SchedulerService schedulerService;
 	private static final Logger logger = LoggerFactory.getLogger(DayJobBean.class);
 
+	/**
+	 * 生产比分结果数据采集任务
+	 * @see org.springframework.scheduling.quartz.QuartzJobBean#executeInternal(org.quartz.JobExecutionContext)
+	 */
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		String startTime=DateUtils.format(new Date(), DateUtils.Y_M_D_HMS);
-		logger.info("生产比分结果数据采集任务/"+startTime);
+		
 		this.proRecordService = ((ProRecordService) getApplicationContext(context).getBean("proRecordService", ProRecordService.class));
 		this.schedulerService = ((SchedulerService) getApplicationContext(context).getBean("schedulerService", SchedulerService.class));
 		PropertiesCache cache = (PropertiesCache) getApplicationContext(context).getBean("cacheProperties", PropertiesCache.class);
@@ -55,7 +59,7 @@ public class DayJobBean extends QuartzJobBean {
 			String selType = properties.getProperty("job.delay.interval.selType");
 			String val = properties.getProperty("job.delay.notget.interval");
 			String intervalCron=DateUtils.addCronInterval(selType, val, cron);
-			logger.info(file.getGameId()+"结果采集初始时间"+intervalCron);
+			logger.debug(file.getGameId()+"结果采集初始时间"+intervalCron);
 			//String intervalCron = "0 0/5 * ? * * *";
 			//String jobName = "jobDetail-" + file.getId();
 			//JobBuilder b = new JobBuilder();
@@ -63,7 +67,7 @@ public class DayJobBean extends QuartzJobBean {
 			//JobDetail jobDetail = JobBuilder.newJob(GameResultJobBean.class).storeDurably().withIdentity(jobName, null).build();
 			JobDetail jobDetail = (JobDetail) SpringContextUtil.getBean("jobDetail3");
 			this.schedulerService.scheduleDetail(triggerName, jobDetail, intervalCron);
-			logger.info("添加比赛结果采集任务" + file.getGameId() + "/" + intervalCron);
+			logger.debug("添加比赛结果采集任务" + file.getGameId() + "/" + intervalCron);
 		}
 	}
 

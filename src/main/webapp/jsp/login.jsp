@@ -20,11 +20,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<!--
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	-->
-	<script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/jquery-1.8.3.js"></script>
+	<%-- <script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/jquery-1.8.3.js"></script> 
 	<script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/jquery.json-2.3.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/common-base.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/common-base.js"></script>--%>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/components/zxy/cert.js"></script>
-	<link rel="stylesheet" href="./components/layui/css/layui.css">
+	<!-- <link rel="stylesheet" href="./components/layui/css/layui.css"> -->
   	<link rel="stylesheet" href="./styles/login.css">
   </head>
   
@@ -74,22 +74,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <script src="./components/layui/layui.js"></script>
   <script>
     layui.use(['layer', 'form'], function() {
-      var form = layui.form,
-        $ = layui.jquery;
+      var form = layui.form;
+      var $ = layui.jquery;
 
-      $('#forgot').on('click', function() {
-        layer.msg('请联系管理员.');
-      });
+      
       //监听提交
-      /*form.on('submit(login_hash)', function(data) {
-        layer.msg(JSON.stringify(data.field));
+      form.on('submit(login_hash)', function(data) {
+        //layer.msg(JSON.stringify(data.field));
         setTimeout(function(){
             location.href='/';
         },1000);
 
-        return false;
+        return true;
       });
-    });*/
+    });
   </script>
   </body>
 </html>

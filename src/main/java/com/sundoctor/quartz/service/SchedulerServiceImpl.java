@@ -12,10 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.quartz.CronExpression;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
+import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -379,4 +382,151 @@ public class SchedulerServiceImpl implements SchedulerService {
 
 		return (date != null) && (date.after(new Date()));
 	}
+	
+	/** 
+     * @Description: 修改一个任务的触发时间(使用默认的任务组名，触发器名，触发器组名) 
+     * @param jobName 
+     * @param time 
+     * @Title: QuartzManager.java 
+     * @Copyright: Copyright (c) 2014 
+     * @author Comsys-LZP 
+     * @date 2014-6-26 下午03:49:21 
+     * @version V2.0 
+     */  
+	@SuppressWarnings("unchecked")
+	public void ramodifyJobTime(String jobName, String triggerName, CronExpression cronExpression) {
+		try {
+			TriggerKey triggerKey = new TriggerKey(triggerName, org.quartz.utils.Key.DEFAULT_GROUP);
+			CronTriggerImpl trigger = (CronTriggerImpl) this.scheduler.getTrigger(triggerKey);
+			if (trigger == null) {
+				return;
+			}
+			String oldTime = trigger.getCronExpression();
+			if (!oldTime.equalsIgnoreCase(cronExpression.getCronExpression())) {
+				JobKey jobkey = new JobKey(jobName, org.quartz.utils.Key.DEFAULT_GROUP);
+				JobDetail jobDetail = this.scheduler.getJobDetail(jobkey);
+				Class objJobClass = jobDetail.getJobClass();
+				removeJob(jobName, org.quartz.utils.Key.DEFAULT_GROUP, triggerName, org.quartz.utils.Key.DEFAULT_GROUP);
+				addJob(jobName, triggerName, objJobClass, cronExpression);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void modifyJobTime(String triggerName, String groupName, CronExpression cronExpression) {
+		if (isValidExpression(cronExpression)) {
+			try {
+				TriggerKey triggerKey = new TriggerKey(triggerName, groupName);
+				CronTriggerImpl trigger = (CronTriggerImpl) this.scheduler.getTrigger(triggerKey);
+	            if (trigger == null) {  
+	                return;  
+	            }
+	            String oldTime = trigger.getCronExpression();
+	            if (!oldTime.equalsIgnoreCase(cronExpression.getCronExpression())) {
+	            	//JobKey jobkey=new JobKey(jobName, groupName);
+	                //JobDetail jobDetail = this.scheduler.getJobDetail(jobkey);
+	                // 修改时间  
+	                trigger.setCronExpression(cronExpression);  
+	                // 重启触发器
+	                this.scheduler.rescheduleJob(triggerKey, trigger);
+	                this.scheduler.pauseTrigger(triggerKey);
+	                this.scheduler.resumeTrigger(triggerKey);
+	            }
+			} catch (SchedulerException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+		
+	}
+	
+	/** 
+     * @Description: 移除一个任务(使用默认的任务组名，触发器名，触发器组名) 
+     * @param jobName 
+     * @Title: QuartzManager.java 
+     * @Copyright: Copyright (c) 2014 
+     * @author Comsys-LZP 
+     * @date 2014-6-26 下午03:49:51 
+     * @version V2.0 
+     */  
+    public void removeJob(String jobName,String triggerName) {  
+        try {
+        	TriggerKey triggerKey = new TriggerKey(jobName, org.quartz.utils.Key.DEFAULT_GROUP);
+        	JobKey jobkey=new JobKey(jobName, org.quartz.utils.Key.DEFAULT_GROUP);
+        	this.scheduler.pauseTrigger(triggerKey);// 停止触发器  
+        	this.scheduler.unscheduleJob(triggerKey);// 移除触发器  
+        	this.scheduler.deleteJob(jobkey);// 删除任务  
+        } catch (Exception e) {  
+            throw new RuntimeException(e);  
+        }  
+    }  
+  
+    /** 
+     * @Description: 移除一个任务 
+     * @param jobName 
+     * @param jobGroupName 
+     * @param triggerName 
+     * @param triggerGroupName 
+     * @Title: QuartzManager.java 
+     * @Copyright: Copyright (c) 2014 
+     * @author Comsys-LZP 
+     * @date 2014-6-26 下午03:50:01 
+     * @version V2.0 
+     */  
+    public void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) {  
+        try {
+        	TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroupName);
+        	JobKey jobkey=new JobKey(jobName, jobGroupName);
+        	this.scheduler.pauseTrigger(triggerKey);// 停止触发器 
+        	this.scheduler.unscheduleJob(triggerKey);// 移除触发器 
+        	this.scheduler.deleteJob(jobkey);// 删除任务
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }  
+    }
+    
+    /** 
+     * @Description: 添加一个定时任务，使用默认的任务组名，触发器名，触发器组名 
+     *  
+     * @param jobName 
+     *            任务名 
+     * @param cls 
+     *            任务 
+     * @param time 
+     *            时间设置，参考quartz说明文档 
+     *  
+     * @Title: QuartzManager.java 
+     * @Copyright: Copyright (c) 2014 
+     *  
+     * @author Comsys-LZP 
+     * @date 2014-6-26 下午03:47:44 
+     * @version V2.0 
+     */  
+    @SuppressWarnings("unchecked")  
+    public void addJob(String jobName,String triggerName, Class cls, CronExpression cronExpression) {  
+        try { 
+        	JobDetailImpl jobDetail=new JobDetailImpl();
+        	jobDetail.setName(jobName);
+        	jobDetail.setGroup(org.quartz.utils.Key.DEFAULT_GROUP);  //默认分组
+        	jobDetail.setJobClass(cls);
+        	jobDetail.setDurability(true);
+        	//jobDetail.
+            //JobDetail jobDetail = new JobDetail(jobName, org.quartz.utils.Key.DEFAULT_GROUP, cls);// 任务名，任务组，任务执行类  
+            // 触发器  
+            CronTriggerImpl trigger = new CronTriggerImpl();
+			trigger.setCronExpression(cronExpression); // 触发器时间设定 
+			TriggerKey triggerKey = new TriggerKey(triggerName, org.quartz.utils.Key.DEFAULT_GROUP);  //默认分组
+
+			trigger.setJobName(jobDetail.getKey().getName());
+			trigger.setKey(triggerKey);
+            this.scheduler.scheduleJob(jobDetail, trigger);  
+            // 启动  
+            if (!this.scheduler.isShutdown()) {  
+            	this.scheduler.start();  
+            }  
+        } catch (Exception e) {  
+            throw new RuntimeException(e);  
+        }  
+    }  
 }

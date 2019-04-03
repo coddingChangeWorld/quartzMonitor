@@ -1,6 +1,8 @@
 package com.controller.sport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.common.base.dao.BaseDaoImpl;
 import com.common.base.dao.Page;
+import com.common.dto.dateLabelTabList;
 import com.common.dto.gameItemListDto;
 import com.common.dto.profileDto;
 import com.common.tool.DataResponse;
@@ -172,6 +175,19 @@ public class nbaController {
 		return new DataResponse("成功同步"+prolist.keySet().size()+"场");
 	}
 	
+	/**
+	 * 
+	 * @Title: weekProfileList
+	 * @Description: TODO(NBA未来一周的比赛数据获取)
+	 * @author: linjie
+	 * @date: 2018-9-3
+	 * @param request
+	 * @param response
+	 * @param modelMap
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
 	@RequestMapping({ "/weekProfileList" })
 	@ResponseBody
 	public DataResponse weekProfileList(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) throws Exception {
@@ -179,6 +195,8 @@ public class nbaController {
 		WeekCollectService collectService = new WeekCollectService(pathUrl);
 		collectService.collect();
 		Map<String, AppProfile> weekProList = collectService.getProList();
+		Map<String,dateLabelTabList<profileDto>> groupTimeList=new HashMap<String,dateLabelTabList<profileDto>>(); //key=time, value=list 按时间分组
+		
 		// Map<String,profileDto> weekProListDto=
 
 		// BeanUtils.copyProperties(home, homeTeamBean);
@@ -192,6 +210,19 @@ public class nbaController {
 				AppProfile remonetprofile = weekProList.get(dbprofile.getGameId());
 				dbprofile.setSyncStatus("2");
 				BeanUtils.copyProperties(dbprofile, remonetprofile);
+				/*分组*/
+				String time=DateUtils.format(dbprofile.getGameTime(), DateUtils.Y_M_D);
+				if(groupTimeList.containsKey(time)){
+					groupTimeList.get(time).getList().add(dbprofile);
+				}else{
+					dateLabelTabList<profileDto> dateLabelTabItem=new dateLabelTabList<profileDto>();
+					dateLabelTabItem.setDate(time);
+					dateLabelTabItem.setTime(dbprofile.getGameTime());
+					dateLabelTabItem.setType("NBA");
+					dateLabelTabItem.setList(new ArrayList<profileDto>(Arrays.asList(dbprofile)));
+					groupTimeList.put(time, dateLabelTabItem);
+				}
+				//else groupTimeList.put(time, new ArrayList<profileDto>(Arrays.asList(dbprofile)));
 				weekProList.remove(dbprofile.getGameId());
 			}
 			for (Map.Entry<String, AppProfile> entry : weekProList.entrySet()) {
@@ -199,10 +230,25 @@ public class nbaController {
 				profileDto remonetprofiledto = new profileDto();
 				remonetprofiledto.setSyncStatus("1");
 				BeanUtils.copyProperties(remonetprofiledto, remonetprofile);
-				profiles.add(remonetprofiledto);
+				/*分组*/
+				/*分组*/
+				String time=DateUtils.format(remonetprofiledto.getGameTime(), DateUtils.Y_M_D);
+				if(groupTimeList.containsKey(time)){
+					groupTimeList.get(time).getList().add(remonetprofiledto);
+				}else{
+					dateLabelTabList<profileDto> dateLabelTabItem=new dateLabelTabList<profileDto>();
+					dateLabelTabItem.setDate(time);
+					dateLabelTabItem.setTime(remonetprofiledto.getGameTime());
+					dateLabelTabItem.setType("NBA");
+					dateLabelTabItem.setList(new ArrayList<profileDto>(Arrays.asList(remonetprofiledto)));
+					groupTimeList.put(time, dateLabelTabItem);
+				}
+				//profiles.add(remonetprofiledto);
 			}
 
 		}
-		return new DataResponse<List<profileDto>>(200, profiles,0);
+		ArrayList<dateLabelTabList> result=new ArrayList<dateLabelTabList>(groupTimeList.values());
+		Collections.sort(result);
+		return new DataResponse<ArrayList<dateLabelTabList>>(200, result ,0);
 	}
 }

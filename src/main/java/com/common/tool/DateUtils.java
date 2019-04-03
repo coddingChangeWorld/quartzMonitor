@@ -1,6 +1,7 @@
 package com.common.tool;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -374,6 +375,23 @@ public class DateUtils {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	/**
+	 * 
+	 * @Title: format
+	 * @Description: TODO(格式化Timestamp类型的时间)
+	 * @author: linjie
+	 * @date: 2018-9-3
+	 * @param date
+	 * @param format
+	 * @return
+	 */
+	public static String format(Timestamp date, String format) {
+		String result = "";
+        DateFormat sdf = new SimpleDateFormat(format);
+        result = sdf.format(date); 
+        return result;
 	}
 
 	public static Date format(String dateStr, String format) {
