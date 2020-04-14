@@ -636,7 +636,14 @@ public class DateUtils {
 		return newShortYMDFormat().format(new Date());
 	}
 
-	public static List getShortYMDList(String startShortYMD, String endShortYMD) throws ParseException {
+	/**
+	 * 
+	 * @param startShortYMD
+	 * @param endShortYMD
+	 * @return
+	 * @throws ParseException
+	 */
+	public static List<String> getShortYMDList(String startShortYMD, String endShortYMD) throws ParseException {
 		SimpleDateFormat startDateFormat = newShortYMDFormat();
 		startDateFormat.parse(startShortYMD);
 		Calendar startCal = startDateFormat.getCalendar();
@@ -645,10 +652,10 @@ public class DateUtils {
 		endDateFormat.parse(endShortYMD);
 		Calendar endCal = endDateFormat.getCalendar();
 
-		List dateList = new ArrayList();
+		List<String> dateList = new ArrayList<String>();
 		while (startCal.before(endCal)) {
 			dateList.add(startDateFormat.format(startCal.getTime()));
-			startCal.add(5, 1);
+			startCal.add(Calendar.DAY_OF_MONTH, 1);
 		}
 		if (startCal.getTimeInMillis() == endCal.getTimeInMillis()) {
 			dateList.add(startDateFormat.format(endCal.getTime()));
@@ -656,7 +663,7 @@ public class DateUtils {
 		return dateList;
 	}
 
-	public static List getShortYMList(String startShortYM, String endShortYM) throws ParseException {
+	public static List<String> getShortYMList(String startShortYM, String endShortYM) throws ParseException {
 		SimpleDateFormat startDateFormat = newShortYMFormat();
 		startDateFormat.parse(startShortYM);
 		Calendar startCal = startDateFormat.getCalendar();
@@ -665,10 +672,10 @@ public class DateUtils {
 		endDateFormat.parse(endShortYM);
 		Calendar endCal = endDateFormat.getCalendar();
 
-		List dateList = new ArrayList();
+		List<String> dateList = new ArrayList<String>();
 		while (startCal.before(endCal)) {
 			dateList.add(startDateFormat.format(startCal.getTime()));
-			startCal.add(2, 1);
+			startCal.add(Calendar.MONTH, 1);
 		}
 		if (startCal.getTimeInMillis() == endCal.getTimeInMillis()) {
 			dateList.add(startDateFormat.format(endCal.getTime()));
