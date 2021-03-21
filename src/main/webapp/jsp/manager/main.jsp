@@ -53,13 +53,13 @@
   }}
 
 <ul class="layui-timeline">
-{{#  layui.each(d.list, function(index, ditem){ }}
+{{#  layui.each(d.data, function(index, ditem){ }}
   <li class="layui-timeline-item">
     <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
     <div class="layui-timeline-content layui-text">
       <h3 class="layui-timeline-title">{{ ditem.date }}</h3>
 	<div id="view" class="layui-row layui-col-space15">
-      	{{#  layui.each(ditem.list, function(index, item){ }}
+      	{{#  layui.each(ditem.data, function(index, item){ }}
   		<div class="layui-col-md5">
 					<div class="layui-card">
 						<div class="layui-card-header">NBA未来一周赛程数据  {{ TimestampFmt(item.gameTime) }}</div>
@@ -101,7 +101,7 @@
 {{#  }); }}
 </ul>
 	
- 	  {{#  if(d.list.length === 0){ }}
+ 	  {{#  if(d.data.length === 0){ }}
     		未来一周没有比赛
   		{{#  } }} 
 	</script>

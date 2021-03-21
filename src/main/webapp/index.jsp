@@ -93,7 +93,7 @@
 					</div>
 				</div>
 	  {{#  }); }}
- 	  {{#  if(d.list.length === 0){ }}
+ 	  {{#  if(d.data.length === 0){ }}
     		无数据
   		{{#  } }} 
 	</script>

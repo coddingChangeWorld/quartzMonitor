@@ -26,9 +26,9 @@ public class DataResponse<T> implements Serializable {
         this.data = data;
     }
     
-    public DataResponse(int code, T list,Integer count) {
+    public DataResponse(int code, T data,Integer count) {
         this.code = code;
-        this.list = list;
+        this.data = data;
         this.count = count;
     }
 

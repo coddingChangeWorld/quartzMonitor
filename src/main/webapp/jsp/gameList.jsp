@@ -22,7 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<style type="text/css">@import url('${pageContext.request.contextPath}/styles/admin/colour.css');</style> 
 	 <style type="text/css">@import url('${pageContext.request.contextPath}/styles/admin/template.css');</style>
 	<style type="text/css">@import url('${pageContext.request.contextPath}/components/calendar/skins/aqua/theme.css');</style>
-	<link rel="stylesheet" href="./components/layui/css/layui.css" media="all">
+	<link rel="stylesheet" href="./components/layui-src/css/layui.css" media="all">
 	<script type="text/javascript" src='<c:url value="/components/jquery/jquery-1.7.2.min.js"/>'></script>
 	<script type="text/javascript" src='<c:url value="/components/jquery/jquery.json-2.3.js"/>'></script>
 	<%-- <script type="text/javascript" src='<c:url value="/components/jquery/jquery.form.js"/>'></script>
@@ -44,7 +44,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  <div class="layui-inline">
 		  	<label class="layui-form-label">搜索ID：</label>
 		  	<div class="layui-input-inline">
-		    <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+		    <input class="layui-input" name="id" id="game_id" autocomplete="off">
 		    </div>
 		  </div>
 		  <div class="layui-inline">
@@ -64,8 +64,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 			</div>
 		  <button class="layui-btn" data-type="reload">搜索</button>
+		<button class="layui-btn" data-type="weekCollect">周数据采集</button>
+		<button class="layui-btn" data-type="dayCollect">天数据采集</button>
 	</div>
-  	<table class="layui-table" lay-data="{height:315, url:'./nba/gameList', page:true, id:'test',height: 'full-25'}" lay-filter="test" id="test">
+  	<table class="layui-table"  lay-filter="gameList">
         <thead>
             <tr>
                 <th lay-data="{field:'id', width:50, sort: true}">ID</th>
@@ -84,7 +86,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         </thead>
     </table>
   </div>
-  <script src="./components/layui/layui.js"></script>
+  <script src="./components/layui-src/layui.js"></script>
   <script type="text/html" id="statusTpl">
 	{{# if(d.status=='1'){ }}
 		未开始
@@ -95,42 +97,74 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	{{#  } }}
    </script> 
     <script>
-        layui.use(['table','laydate'], function() {
+
+        layui.use(['table','laydate','layer'], function() {
             var table = layui.table, laydate = layui.laydate;
+
             //日期
             var d = new Date();
 			laydate.render({
 				elem : '#p_startTime',
 				value:new Date()
 			});
+			var T = 24*60*60*1000,endWeekTime = d.getTime()+(7*T);
+			var endWeek = new Date(endWeekTime);
 			laydate.render({
 				elem : '#p_endTime',
-				//lay.digit(d.getMonth() + 1)
-				value: d.getFullYear() + '-' + lay.digit(d.getMonth() + 1) + '-' + lay.digit(d.getDate()+7)
+						//lay.digit(d.getMonth() + 1)
+						value: endWeek.getFullYear() + '-' + lay.digit(endWeek.getMonth() + 1) + '-' + lay.digit(endWeek.getDate()+7)
 			});
-            var $ = layui.$, active = {
-		    reload: function(){
-		     var demoReload = $('#demoReload');
-		     var startTime = $('#p_startTime');
-		     var endTime = $('#p_endTime');
+
+		var $ = layui.$, active = {
+			reload: function(){
 		      //执行重载
-		      table.reload('test', {
+		      table.reload('gameList', {
 		        page: {
 		          curr: 1 //重新从第 1 页开始
 		        }
 		        ,where: {
-		            id: demoReload.val(),
+		            id: gameId.val(),
 		            startTime:startTime.val(),
 		            endTime:endTime.val()
 		        }
+		        ,response:{
+					  statusCode:200
+				  }
 		      });
-		    }
+		    },
+			weekCollect:function () {
+				layer.msg('hello');
+			},
+			dayCollect:function () {
+				layer.msg('hello');
+			}
 		  };
+			var gameId = $('#game_id'),
+					startTime = $('#p_startTime'),
+					endTime = $('#p_endTime'),
+					tableOptions = {
+						url: './nba/gameList', //请求地址
+						method: 'POST', //方式
+						id: 'gameList', //生成 Layui table 的标识 id，必须提供，用于后文刷新操作，笔者该处出过问题
+						page: true, //是否分页
+						height:315,
+						where: {
+							id: gameId.val(),
+							startTime:startTime.val(),
+							endTime:endTime.val()}, //请求后端接口的条件，该处就是条件错误点，按照官方给出的代码示例，原先写成了 where: { key : { type: "all" } }，结果并不是我想的那样，如此写，key 将是后端的一个类作为参数，里面有 type 属性，如果误以为 key 是 Layui 提供的格式，那就大错特错了
+						response: { //定义后端 json 格式，详细参见官方文档
+							statusCode: '200', //状态字段成功值
+						}
+					};
+			table.init('gameList', tableOptions);
 		  $('.demoTable .layui-btn').on('click', function(){
 		    var type = $(this).data('type');
 		    active[type] ? active[type].call(this) : '';
 		  });
         });
+
+        console.log(gameId.val());
+		console.log(startTime.val());
         
         
     </script>
